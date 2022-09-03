@@ -1,7 +1,7 @@
 #Folders
 /venv-8bit
 /images
-/__pycache__
+/eight_bit/__pycache__
 /notebooks
 
 #Files
