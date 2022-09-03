@@ -1,0 +1,8 @@
+#Folders
+/venv-8bit
+/images
+/__pycache__
+/notebooks
+
+#Files
+test.py
