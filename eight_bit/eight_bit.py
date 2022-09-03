@@ -1,7 +1,7 @@
+import os
 from pyxelate import Pyx, Pal
 from skimage import io
 from skimage.color import rgb2gray
-from os.path import split
 
 def eight_bit(image_name):
     """_summary_
@@ -19,7 +19,7 @@ def eight_bit(image_name):
     pyx = Pyx(palette = palette, factor = downfactor, upscale = upscale, sobel = sobel, dither = 'bayer')
     #Fit Transform Image
     transformed_image = pyx.fit_transform(image)
-    dirname, basename = split(image_name)
+    dirname, basename = os.path.split(image_name)
     io.imsave(f'{dirname}/new_{basename}', transformed_image)
     #return transformed_image
 
@@ -30,7 +30,22 @@ def to_gray(image_name):
         image_name (_type_): _description_
     """
     image = io.imread(image_name)[:, :, :3]
-    #print(type(image))
     transformed_image = rgb2gray(image).astype('uint8')
-    dirname, basename = split(image_name)
+    dirname, basename = os.path.split(image_name)
     io.imsave(f'{dirname}/bw_{basename}', transformed_image)
+
+def get_file_names(
+    path,
+    file_types = ['jpeg', 'jpg', 'png']
+    ):
+    """
+    Devuelve una lista con los archivos de los tipos dados
+    Args:
+        path (str): ruta de la carpeta
+        file_types (list) : lista de extensiones. Default = ['jpeg', 'jpg', 'png']
+    Returns:
+        list : lista de archivos
+    """
+    dir_list = os.listdir(path)
+    dir_list = [e for e in dir_list if e.split('.')[1] in file_types]
+    return dir_list
