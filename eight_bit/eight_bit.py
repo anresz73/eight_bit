@@ -17,7 +17,7 @@ def eight_bit(image_name):
     palette = Pal.TELETEXT
     #Transformer
     pyx = Pyx(palette = palette, factor = downfactor, upscale = upscale, sobel = sobel, dither = 'bayer')
-    #Fit Transform Image
+    #Fit and Transform Image
     transformed_image = pyx.fit_transform(image)
     dirname, basename = os.path.split(image_name)
     io.imsave(f'{dirname}/new_{basename}', transformed_image)
@@ -46,6 +46,11 @@ def get_file_names(
     Returns:
         list : lista de archivos
     """
+    if not os.path.isdir(path):
+        raise FileNotFoundError('Ruta no existente')
     dir_list = os.listdir(path)
-    dir_list = [e for e in dir_list if e.split('.')[1] in file_types]
+    file_types = [f'.{e}' for e in file_types]
+    dir_list = [e for e in dir_list if os.path.splitext(e)[1] in file_types]
+    if len(dir_list) == 0:
+        raise FileNotFoundError('No hay archivos con los tipos seleccionados')
     return dir_list
