@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from pyxelate import Pyx, Pal
 from skimage import io
 from skimage.color import rgb2gray
@@ -34,6 +35,32 @@ def to_gray(image_name):
     dirname, basename = os.path.split(image_name)
     io.imsave(f'{dirname}/bw_{basename}', transformed_image)
 
+def read_image(image_path):
+    """
+    Lee y devuelve array a partir de ruta de imagen
+    Args:
+        image_path (str): ruta del archivo imagen
+    Returns:
+        numpy array: array con la imagen
+    """
+    if not os.path.isfile(image_path):
+        raise FileNotFoundError(f'Archivo {image_path} no existe')
+    result_array = io.imread(image_path)
+    return result_array
+
+def save_image(image_path, image_array, extra_str = 'new'):
+    """
+    Guarda la imagen a partir de array
+    Args:
+        image_path (str): ruta para guardar la imagen
+        image_array (np array): array con la imagen
+        extra_str (str) : extra str para el nombre
+    """
+    split_path = os.path.split(image_path)
+    if not isinstance(image_array, np.ndarray):
+        raise TypeError(f'Imagen {split_path[1]} no es un numpy array')
+    io.imsave('{}/{}_{}'.format(split_path[0], extra_str, split_path[1]), image_array)
+
 def get_file_names(
     path,
     file_types = ['jpeg', 'jpg', 'png']
@@ -47,10 +74,30 @@ def get_file_names(
         list : lista de archivos
     """
     if not os.path.isdir(path):
-        raise FileNotFoundError('Ruta no existente')
+        raise FileNotFoundError(f'Ruta {path} no existente')
     dir_list = os.listdir(path)
     file_types = [f'.{e}' for e in file_types]
     dir_list = [e for e in dir_list if os.path.splitext(e)[1] in file_types]
     if len(dir_list) == 0:
         raise FileNotFoundError('No hay archivos con los tipos seleccionados')
     return dir_list
+
+def custom_grey(array_image):
+    """
+    Devuelve array convertido a escala de grises
+    Args:
+        array_image (numpy array): array con la imagen descargada
+    Returns:
+        numpy array: array con imagen en escala de grises
+    """
+    if len(array_image.shape) == 3:
+        array_result = np.dot(array_image[..., :3], [.299, .587, .114])
+    else:
+        print('Ya está en grises')
+        array_result = array_image[:]
+    # Uint8 Converter
+    imin, imax = array_result.min(), array_result.max()
+    a = (255 - 0) / (imax - imin) # Fórmula 255 a 0
+    b = 255 - a * imax
+    array_result = (a * array_result + b).astype(np.uint8)
+    return array_result
