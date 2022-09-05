@@ -4,5 +4,6 @@ from .eight_bit import (
     get_file_names,
     read_image,
     custom_grey,
-    save_image
+    save_image,
+    image_resize
     )

@@ -1,9 +1,11 @@
 import os
 import numpy as np
 from pyxelate import Pyx, Pal
-from skimage import io
+from skimage import io, img_as_ubyte
 from skimage.color import rgb2gray
+from skimage.transform import resize
 
+# Efectos
 def eight_bit(image_name):
     """_summary_
     Returns:
@@ -35,6 +37,47 @@ def to_gray(image_name):
     dirname, basename = os.path.split(image_name)
     io.imsave(f'{dirname}/bw_{basename}', transformed_image)
 
+def custom_grey(array_image):
+    """
+    Devuelve array convertido a escala de grises
+    Args:
+        array_image (numpy array): array con la imagen descargada
+    Returns:
+        numpy array: array con imagen en escala de grises
+    """
+    if len(array_image.shape) == 3:
+        array_result = np.dot(array_image[..., :3], [.299, .587, .114])
+    else:
+        print('Ya está en grises')
+        array_result = array_image[:]
+    # Uint8 Converter
+    imin, imax = array_result.min(), array_result.max()
+    a = (255 - 0) / (imax - imin) # Fórmula 255 a 0
+    b = 255 - a * imax
+    array_result = (a * array_result + b).astype(np.uint8)
+    return array_result
+
+def image_resize(array_image, size = (569, 857)):
+    """
+    Devuelve array de la imagen reducido por el factor dado
+    Args:
+        array_image (np array): array de la imagen
+        factor (int): Factor a reducir. Defaults = 10.
+
+    Returns:
+        numoy array: array con la imgen resizeada
+    """
+    #new_shape = (
+    #    array_image.shape[0] // factor,
+    #    array_image.shape[1] // factor,
+    #    array_image.shape[2])
+    new_shape = size + (3,)
+    resized_array = resize(
+        image = array_image,
+        output_shape = new_shape)
+    return img_as_ubyte(resized_array)
+
+# Archivos
 def read_image(image_path):
     """
     Lee y devuelve array a partir de ruta de imagen
@@ -82,22 +125,3 @@ def get_file_names(
         raise FileNotFoundError('No hay archivos con los tipos seleccionados')
     return dir_list
 
-def custom_grey(array_image):
-    """
-    Devuelve array convertido a escala de grises
-    Args:
-        array_image (numpy array): array con la imagen descargada
-    Returns:
-        numpy array: array con imagen en escala de grises
-    """
-    if len(array_image.shape) == 3:
-        array_result = np.dot(array_image[..., :3], [.299, .587, .114])
-    else:
-        print('Ya está en grises')
-        array_result = array_image[:]
-    # Uint8 Converter
-    imin, imax = array_result.min(), array_result.max()
-    a = (255 - 0) / (imax - imin) # Fórmula 255 a 0
-    b = 255 - a * imax
-    array_result = (a * array_result + b).astype(np.uint8)
-    return array_result
